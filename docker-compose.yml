@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PHP-FPM Application Container
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: tablelink_app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - tablelink_network
+    depends_on:
+      - db
+
+  # Nginx Web Server
+  web:
+    image: nginx:alpine
+    container_name: tablelink_web
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - tablelink_network
+    depends_on:
+      - app
+
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: tablelink_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-tablelink}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_USER: ${DB_USERNAME:-tablelink}
+    ports:
+      - "3306:3306"
+    volumes:
+      - tablelink_db_data:/var/lib/mysql
+    networks:
+      - tablelink_network
+
+networks:
+  tablelink_network:
+    driver: bridge
+
+volumes:
+  tablelink_db_data:
+    driver: local
