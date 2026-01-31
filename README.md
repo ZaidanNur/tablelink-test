@@ -1,7 +1,5 @@
 # Tablelink Technical Test
 
-A comprehensive user management and analytics dashboard application with external flight data integration.
-
 ## Tech Stack
 
 - **Framework**: Laravel 12
@@ -37,8 +35,32 @@ docker-compose exec app npm install
 ### 3. Run Migrations and Seeders
 
 ```bash
-docker-compose exec app php artisan migrate
 docker-compose exec app php artisan db:seed
+```
+
+### Alternative: Manual Installation (Local)
+
+If you are using Laragon, XAMPP, or running minimal setup:
+
+```bash
+# 1. Install PHP dependencies
+composer install
+
+# 2. Install JS dependencies
+npm install && npm run build
+
+# 3. Setup Environment
+cp .env.example .env
+php artisan key:generate
+
+# 4. Configure Database
+# Edit .env file and set DB_DATABASE, DB_USERNAME, DB_PASSWORD
+
+# 5. Run Migrations & Seeders
+php artisan migrate --seed
+
+# 6. Serve Application
+php artisan serve
 ```
 
 ### 4. Access the Application
